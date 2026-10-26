@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Planner & Tasks — StudyMate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/assistant.html">AI Assistant</a>
+      <a href="/community.html">Community</a>
+      <a href="/skillswap.html">SkillSwap</a>
+      <a href="/quizzes.html">Quizzes</a>
+      <a href="/planner.html" class="active">Planner</a>
+      <a href="/trustcheck.html">TrustCheck</a>
+    </nav>
+    <span id="nav-user-name" style="font-size: 13px; font-weight: 600;">Alex Morgan</span>
+  </header>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <h2>📅 Student Study Task Planner</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Keep track of assignments, exam milestones, and study sessions.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddTaskModal()">+ Add Study Task</button>
+    </div>
+
+    <div class="card">
+      <div id="planner-tasks-container">
+        <p style="color: var(--text-muted);">Loading tasks...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    async function loadTasks() {
+      const container = document.getElementById("planner-tasks-container");
+      try {
+        const res = await StudyMateApi.getTasks();
+        if (res.tasks) {
+          if (res.tasks.length === 0) {
+            container.innerHTML = "<p style='color: var(--text-muted);'>No tasks found. Add a task above!</p>";
+            return;
+          }
+          container.innerHTML = res.tasks.map(t => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <input type="checkbox" ${t.isCompleted ? 'checked' : ''} onchange="toggleTask('${t.id}')" style="width: 18px; height: 18px; margin: 0; cursor: pointer;">
+                <div>
+                  <div style="font-weight: 600; font-size: 14px; text-decoration: ${t.isCompleted ? 'line-through' : 'none'}; color: ${t.isCompleted ? 'var(--text-muted)' : 'var(--text)'};">
+                    ${t.title}
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-muted);">${t.subject} • Due: ${t.dueDate}</div>
+                </div>
+              </div>
+              <span class="badge ${t.priority === 'HIGH' ? 'badge-rejected' : 'badge-pending'}">${t.priority}</span>
+            </div>
+          `).join("");
+        }
+      } catch (e) {
+        container.innerHTML = "<p>Error loading tasks.</p>";
+      }
+    }
+
+    async function toggleTask(id) {
+      await StudyMateApi.toggleTask(id);
+      loadTasks();
+    }
+
+    async function openAddTaskModal() {
+      const title = prompt("Task Description (e.g. Finish Operating Systems Assignment 4):");
+      if (!title) return;
+      const subject = prompt("Subject / Course:", "Computer Science");
+      const priority = prompt("Priority (HIGH / MEDIUM / LOW):", "HIGH");
+      const dueDate = prompt("Due Date (e.g. Friday 5:00 PM):", "Friday");
+
+      try {
+        await StudyMateApi.addTask(title, subject || "General", priority || "MEDIUM", dueDate || "Tomorrow");
+        loadTasks();
+      } catch (e) {
+        alert("Failed to add task: " + e.message);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => loadTasks());
+  </script>
+</body>
+</html>

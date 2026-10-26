@@ -1,0 +1,6 @@
+{
+  "name": "StudyMate AI",
+  "description": "Complete student platform with Gemma AI study assistant, peer SkillSwap, quizzes, community, study planner, and TrustCheck document verification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

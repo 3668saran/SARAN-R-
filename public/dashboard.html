@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard — StudyMate AI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html" class="active">Dashboard</a>
+      <a href="/assistant.html">AI Assistant</a>
+      <a href="/community.html">Community</a>
+      <a href="/skillswap.html">SkillSwap</a>
+      <a href="/quizzes.html">Quizzes</a>
+      <a href="/planner.html">Planner</a>
+      <a href="/trustcheck.html">TrustCheck</a>
+    </nav>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <span id="nav-user-name" style="font-size: 13px; font-weight: 600;">Alex Morgan</span>
+      <select onchange="AuthController.switchRole(this.value)" style="margin: 0; padding: 4px 8px; font-size: 12px; width: auto;">
+        <option value="student">Student View</option>
+        <option value="staff">Staff Reviewer</option>
+        <option value="admin">Admin Audit</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="hero-banner">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span style="font-size: 14px; opacity: 0.85;">Welcome back,</span>
+          <h2 style="font-size: 26px;">Alex Morgan</h2>
+          <p style="opacity: 0.9; font-size: 14px; margin-top: 4px;">National Institute of Science & Technology • Computer Science</p>
+        </div>
+        <div>
+          <span class="badge badge-verified" style="font-size: 14px; padding: 8px 14px; background: rgba(255,255,255,0.2); color: #fff;">
+            ✓ TrustCheck Verified
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Quick AI Card -->
+      <div class="card">
+        <h3>🤖 Gemma 4 Study Assistant</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin: 8px 0 16px;">
+          Ask any STEM question or get structured code breakdowns.
+        </p>
+        <a href="/assistant.html" class="btn btn-primary" style="width: 100%;">Open AI Tutor</a>
+      </div>
+
+      <!-- Pending Tasks -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3>📋 Upcoming Study Tasks</h3>
+          <a href="/planner.html" style="font-size: 12px; color: var(--primary);">View All</a>
+        </div>
+        <div id="dashboard-tasks-list">
+          <p style="color: var(--text-muted); font-size: 13px;">Loading tasks...</p>
+        </div>
+      </div>
+
+      <!-- SkillSwap Opportunities -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3>🤝 Peer Learning Exchanges</h3>
+          <a href="/skillswap.html" style="font-size: 12px; color: var(--primary);">Explore</a>
+        </div>
+        <div id="dashboard-skills-list">
+          <p style="color: var(--text-muted); font-size: 13px;">Loading peers...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

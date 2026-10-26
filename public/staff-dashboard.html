@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authorized Staff Verification Dashboard — StudyMate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/trustcheck.html">Student TrustCheck</a>
+      <a href="/staff-dashboard.html" class="active">Staff Dashboard</a>
+    </nav>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <span class="badge badge-verified">Staff Role: Dr. Vance</span>
+      <button class="btn btn-secondary" onclick="AuthController.switchRole('student')" style="padding: 4px 8px; font-size: 11px;">Switch to Student</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <h2>🏛️ Authorized Staff Review & Audit Portal</h2>
+      <p style="color: var(--text-muted); font-size: 14px;">
+        Review student marksheet uploads against institutional records. Human approval is required for all certifications.
+      </p>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3>Pending Verification Submissions</h3>
+        <button class="btn btn-secondary" onclick="loadQueue()" style="font-size: 12px;">Refresh Queue</button>
+      </div>
+
+      <div id="queue-container">
+        <p style="color: var(--text-muted); font-size: 13px;">Loading queue...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    async function loadQueue() {
+      const container = document.getElementById("queue-container");
+      // Set staff token for this page
+      StudyMateApi.setToken("dev-token-staff");
+      try {
+        const res = await StudyMateApi.getStaffQueue();
+        if (res.submissions) {
+          container.innerHTML = res.submissions.map(sub => `
+            <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; background: var(--surface);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>${sub.studentName}</strong> (Reg: <span style="font-family: monospace; color: var(--primary);">${sub.collegeRegNo}</span>)
+                  <div style="font-size: 12px; color: var(--text-muted);">${sub.documentType} • File: ${sub.documentName}</div>
+                </div>
+                <span class="badge badge-${sub.status}">${sub.status.toUpperCase()}</span>
+              </div>
+              
+              <div style="margin: 10px 0; font-size: 12px; background: var(--surface-alt); padding: 8px; border-radius: 4px;">
+                <strong>Gemma AI Extracted Notes:</strong> ${sub.aiNotes || 'Seal detected. Standard marksheet layout.'}
+              </div>
+
+              ${sub.remarks ? `<div style="font-size: 12px; margin-bottom: 8px; color: var(--primary);"><strong>Current Remarks:</strong> ${sub.remarks}</div>` : ''}
+
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="review('${sub.id}', true)">
+                  ✓ Approve & Certify
+                </button>
+                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="review('${sub.id}', false)">
+                  ✕ Request Correction
+                </button>
+              </div>
+            </div>
+          `).join("");
+        }
+      } catch (e) {
+        container.innerHTML = `<p style="color: var(--danger);">Error loading staff queue: ${e.message}</p>`;
+      }
+    }
+
+    async function review(id, approve) {
+      let remarks = "";
+      if (approve) {
+        remarks = prompt("Enter registrar endorsement remarks:", "Verified against institutional registry database.");
+      } else {
+        remarks = prompt("Enter mandatory reason for rejection/correction:", "Document scan is unclear. Please provide an original high-resolution scan with registrar stamp.");
+      }
+      if (remarks === null) return; // cancelled
+
+      try {
+        await StudyMateApi.reviewSubmission(id, approve, remarks);
+        alert(approve ? "Submission approved & certified!" : "Correction request recorded.");
+        loadQueue();
+      } catch (e) {
+        alert("Review failed: " + e.message);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => loadQueue());
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemma 4 AI Study Assistant — StudyMate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/assistant.html" class="active">AI Assistant</a>
+      <a href="/community.html">Community</a>
+      <a href="/skillswap.html">SkillSwap</a>
+      <a href="/quizzes.html">Quizzes</a>
+      <a href="/planner.html">Planner</a>
+      <a href="/trustcheck.html">TrustCheck</a>
+    </nav>
+    <span id="nav-user-name" style="font-size: 13px; font-weight: 600;">Alex Morgan</span>
+  </header>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div>
+        <h2>🤖 Gemma 4 AI Study Assistant</h2>
+        <p style="color: var(--text-muted); font-size: 13px;">Ask for step-by-step solutions, code walkthroughs, math proofs, or summaries.</p>
+      </div>
+      <div class="badge badge-verified">
+        ● Gemma 4 Model Active
+      </div>
+    </div>
+
+    <!-- Quick Subject Selector -->
+    <div style="display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px;">
+      <button class="btn btn-secondary active" onclick="setSubject('Computer Science', this)">Computer Science</button>
+      <button class="btn btn-secondary" onclick="setSubject('Algorithms', this)">Algorithms</button>
+      <button class="btn btn-secondary" onclick="setSubject('Calculus', this)">Calculus</button>
+      <button class="btn btn-secondary" onclick="setSubject('Physics', this)">Physics</button>
+      <button class="btn btn-secondary" onclick="setSubject('Summary Notes', this)">Summary Notes</button>
+    </div>
+
+    <div class="chat-box">
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg-ai">
+          <strong>Hello Alex!</strong> I am your StudyMate Gemma 4 Academic Tutor. What subject or concept would you like to explore today?
+        </div>
+      </div>
+      <form class="chat-input-bar" id="chat-form">
+        <input type="text" id="chat-input" placeholder="Ask a question (e.g. Explain Dijkstra's algorithm or derive chain rule)..." required style="margin: 0;">
+        <button type="submit" class="btn btn-primary" id="send-btn">Ask AI</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/assistant.js"></script>
+</body>
+</html>

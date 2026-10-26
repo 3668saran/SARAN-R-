@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustCheck Document Verification — StudyMate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/assistant.html">AI Assistant</a>
+      <a href="/community.html">Community</a>
+      <a href="/skillswap.html">SkillSwap</a>
+      <a href="/quizzes.html">Quizzes</a>
+      <a href="/planner.html">Planner</a>
+      <a href="/trustcheck.html" class="active">TrustCheck</a>
+    </nav>
+    <a href="/staff-dashboard.html" class="btn btn-secondary" style="font-size: 12px;">Staff Review Queue →</a>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <h2>🛡️ TrustCheck Student Document Verification</h2>
+      <p style="color: var(--text-muted); font-size: 14px;">
+        Submit your official academic transcript or marksheet for human-verified status. Powered by Gemma 4 AI pre-screening.
+      </p>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+      <!-- Submission Form -->
+      <div class="card">
+        <h3>Submit Academic Credential</h3>
+        <form id="trustcheck-form">
+          <label style="font-weight: 600; font-size: 13px;">College Registration / Roll Number:</label>
+          <input type="text" id="reg-number" value="REG-2024-CS-8921" placeholder="e.g. REG-2024-CS-8921" required>
+
+          <label style="font-weight: 600; font-size: 13px;">Document Type:</label>
+          <select id="doc-type">
+            <option value="Semester Grade Marksheet">Semester Grade Marksheet</option>
+            <option value="Degree Certificate">Degree Certificate</option>
+            <option value="Provisional Transcript">Provisional Transcript</option>
+            <option value="Campus Photo ID">Campus Photo ID</option>
+          </select>
+
+          <label style="font-weight: 600; font-size: 13px;">Original Scanned File:</label>
+          <input type="file" id="doc-file" accept=".pdf,.png,.jpg,.jpeg">
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: -8px; margin-bottom: 12px;">
+            Supported formats: PDF, PNG, JPG (Max 10MB). Stored in encrypted private storage.
+          </p>
+
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary" id="ai-precheck-btn" style="flex: 1;">
+              🤖 Run AI Pre-Check
+            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn" style="flex: 1;">
+              Submit for Review
+            </button>
+          </div>
+        </form>
+
+        <div id="ai-precheck-result" style="display: none; margin-top: 16px; padding: 12px; background: var(--surface-alt); border-radius: var(--radius-sm); font-size: 12px;">
+          <h4 style="color: var(--primary); margin-bottom: 6px;">Gemma AI Extraction Preview</h4>
+          <p id="ai-precheck-text" style="font-family: monospace; white-space: pre-wrap;"></p>
+          <p style="color: var(--accent); font-weight: 600; margin-top: 8px;">
+            Notice: AI pre-check does not grant certification. Final approval is conducted by authorized human registry staff.
+          </p>
+        </div>
+      </div>
+
+      <!-- Current Status & Verification History -->
+      <div class="card">
+        <h3>Your Verification Status</h3>
+        <div id="status-card" style="margin-top: 12px; padding: 16px; border-radius: var(--radius-sm); background: var(--surface-alt);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600;">Status:</span>
+            <span class="badge badge-verified" id="status-badge">Verified</span>
+          </div>
+          <p style="font-size: 13px; margin: 10px 0;" id="status-desc">
+            Your document has been verified against institutional registry records.
+          </p>
+          <div style="font-size: 12px; color: var(--text-muted);" id="status-reviewer">
+            Reviewed by: Dr. Evelyn Vance • Oct 25, 2026
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h4>Privacy & Academic Security</h4>
+          <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 6px;">
+            Registration numbers and marksheets are private records. They are never published on public leaderboards or visible to other students. Only authorized faculty and registry reviewers have access.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/trustcheck.js"></script>
+</body>
+</html>

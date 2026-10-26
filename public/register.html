@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration — StudyMate AI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+  <div class="card" style="width: 100%; max-width: 420px; padding: 32px 24px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <a href="/index.html" class="brand" style="justify-content: center;"><span>🎓</span> StudyMate AI</a>
+      <h3 style="margin-top: 12px;">Create Student Account</h3>
+      <p style="color: var(--text-muted); font-size: 13px;">Join your campus study network</p>
+    </div>
+
+    <form onsubmit="handleRegister(event)">
+      <label style="font-weight: 600; font-size: 13px;">Full Name:</label>
+      <input type="text" id="reg-name" placeholder="Alex Morgan" required>
+
+      <label style="font-weight: 600; font-size: 13px;">College Email:</label>
+      <input type="email" id="reg-email" placeholder="student@university.edu" required>
+
+      <label style="font-weight: 600; font-size: 13px;">College Registration / Roll #:</label>
+      <input type="text" id="reg-no" placeholder="REG-2024-CS-8921" required>
+
+      <label style="font-weight: 600; font-size: 13px;">Password:</label>
+      <input type="password" id="reg-password" required minlength="8">
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Register Account</button>
+    </form>
+
+    <div style="margin-top: 20px; text-align: center; font-size: 13px;">
+      <span style="color: var(--text-muted);">Already registered?</span>
+      <a href="/login.html" style="color: var(--primary); font-weight: 600;">Sign in here</a>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    function handleRegister(e) {
+      e.preventDefault();
+      localStorage.setItem("studymate_token", "dev-token-student");
+      localStorage.setItem("studymate_user", JSON.stringify({
+        name: document.getElementById("reg-name").value,
+        email: document.getElementById("reg-email").value,
+        role: "student",
+        status: "pending"
+      }));
+      alert("Registration successful! Welcome to StudyMate AI.");
+      window.location.href = "/dashboard.html";
+    }
+  </script>
+</body>
+</html>

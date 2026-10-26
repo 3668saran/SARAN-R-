@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillSwap Peer Learning — StudyMate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/assistant.html">AI Assistant</a>
+      <a href="/community.html">Community</a>
+      <a href="/skillswap.html" class="active">SkillSwap</a>
+      <a href="/quizzes.html">Quizzes</a>
+      <a href="/planner.html">Planner</a>
+      <a href="/trustcheck.html">TrustCheck</a>
+    </nav>
+    <span id="nav-user-name" style="font-size: 13px; font-weight: 600;">Alex Morgan</span>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <h2>🤝 SkillSwap Peer Learning</h2>
+      <p style="color: var(--text-muted); font-size: 14px;">Find study partners to exchange skills 1-on-1 without fees.</p>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <input type="text" id="skill-search" placeholder="Search skills (e.g. Python, Calculus, React)..." style="margin: 0; flex: 1;">
+      <button class="btn btn-primary" onclick="searchSkills()">Search</button>
+    </div>
+
+    <div class="grid" id="skills-grid">
+      <p style="color: var(--text-muted);">Loading skills...</p>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    async function searchSkills() {
+      const q = document.getElementById("skill-search").value;
+      const grid = document.getElementById("skills-grid");
+      try {
+        const res = await StudyMateApi.getSkillListings(q);
+        if (res.listings) {
+          grid.innerHTML = res.listings.map(s => `
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 16px;">${s.userName}</strong>
+                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent);">★ ${s.rating}</span>
+              </div>
+              <div style="margin: 14px 0;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--success); margin-bottom: 4px;">CAN TEACH</div>
+                <div>${s.teachSkills.map(t => `<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); margin: 2px;">${t}</span>`).join('')}</div>
+              </div>
+              <div style="margin-bottom: 16px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">WANTS TO LEARN</div>
+                <div>${s.learnSkills.map(l => `<span class="badge" style="background: rgba(59, 72, 223, 0.1); color: var(--primary); margin: 2px;">${l}</span>`).join('')}</div>
+              </div>
+              <button class="btn btn-primary" style="width: 100%; font-size: 12px;" onclick="propose('${s.userName}')">
+                Propose Exchange
+              </button>
+            </div>
+          `).join("");
+        }
+      } catch (e) {
+        grid.innerHTML = "<p>Error loading skills.</p>";
+      }
+    }
+
+    async function propose(name) {
+      const teach = prompt(`What skill will you teach ${name}?`, "Python");
+      if (!teach) return;
+      const learn = prompt(`What skill do you want to learn from ${name}?`, "Calculus");
+      if (!learn) return;
+      const msg = prompt("Short message:", "Hey! Let's swap study hours.");
+      
+      try {
+        await StudyMateApi.sendSkillRequest(name, teach, learn, msg || "");
+        alert(`Exchange proposal sent to ${name}!`);
+      } catch (e) {
+        alert("Failed to send proposal: " + e.message);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => searchSkills());
+  </script>
+</body>
+</html>

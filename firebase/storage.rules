@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isStaffOrAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.role == 'staff' || request.auth.token.role == 'admin');
+    }
+
+    // TrustCheck Student Document Storage
+    match /trustcheck_documents/{studentId}/{documentId} {
+      // Only the submitting student or authorized staff can read marksheet files
+      allow read: if isAuthenticated() && (request.auth.uid == studentId || isStaffOrAdmin());
+      
+      // Only the student can upload their own marksheet, with size & type constraints
+      allow write: if isAuthenticated() && request.auth.uid == studentId
+        && request.resource.size < 10 * 1024 * 1024 // 10MB limit
+        && request.resource.contentType.matches('application/pdf|image/jpeg|image/png');
+    }
+
+    // Public Assets (e.g. course icons, badges)
+    match /public_assets/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+  }
+}

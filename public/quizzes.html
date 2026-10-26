@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Quizzes & Challenges — StudyMate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/assistant.html">AI Assistant</a>
+      <a href="/community.html">Community</a>
+      <a href="/skillswap.html">SkillSwap</a>
+      <a href="/quizzes.html" class="active">Quizzes</a>
+      <a href="/planner.html">Planner</a>
+      <a href="/trustcheck.html">TrustCheck</a>
+    </nav>
+    <span id="nav-user-name" style="font-size: 13px; font-weight: 600;">Alex Morgan</span>
+  </header>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <h2>🎯 Academic Quizzes & Challenges</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Test your knowledge with immediate scoring, feedback, and student leaderboards.</p>
+      </div>
+      <button class="btn btn-secondary" onclick="generateAiQuiz()">🤖 Generate AI Quiz</button>
+    </div>
+
+    <div class="grid">
+      <!-- Quiz List -->
+      <div id="quiz-list-col">
+        <h3>Available Practice Quizzes</h3>
+        <div id="quiz-container" style="margin-top: 14px; display: flex; flex-direction: column; gap: 14px;">
+          <p style="color: var(--text-muted);">Loading quizzes...</p>
+        </div>
+      </div>
+
+      <!-- Leaderboard Column -->
+      <div>
+        <h3>🏆 Student Leaderboard</h3>
+        <div id="leaderboard-container" class="card" style="margin-top: 14px;">
+          <p style="color: var(--text-muted);">Loading leaderboard...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    async function loadQuizzes() {
+      const qc = document.getElementById("quiz-container");
+      const lc = document.getElementById("leaderboard-container");
+      try {
+        const qRes = await StudyMateApi.getQuizzes();
+        if (qRes.quizzes) {
+          qc.innerHTML = qRes.quizzes.map(q => `
+            <div class="card" style="margin: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" style="background: rgba(59,72,223,0.1); color: var(--primary);">${q.subject}</span>
+                <span style="font-size: 12px; color: var(--text-muted);">${q.difficulty}</span>
+              </div>
+              <h4 style="margin: 8px 0 14px; font-size: 16px;">${q.title}</h4>
+              <button class="btn btn-primary" style="font-size: 12px; width: 100%;" onclick="takeQuiz('${q.id}', '${q.title}')">
+                Take Practice Quiz
+              </button>
+            </div>
+          `).join("");
+        }
+
+        const lRes = await StudyMateApi.getLeaderboard();
+        if (lRes.leaderboard) {
+          lc.innerHTML = lRes.leaderboard.map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border);">
+              <div>
+                <strong>#${item.rank} ${item.name}</strong>
+                ${item.verified ? '<span class="badge badge-verified" style="font-size: 10px;">✓</span>' : ''}
+              </div>
+              <span style="font-weight: 700; color: var(--primary);">${item.points} pts</span>
+            </div>
+          `).join("");
+        }
+      } catch (e) {
+        console.error("Quiz load error:", e);
+      }
+    }
+
+    async function takeQuiz(id, title) {
+      const qRes = await StudyMateApi.getQuizzes();
+      const quiz = qRes.quizzes.find(q => q.id === id);
+      if (!quiz) return;
+
+      const answers = {};
+      for (let i = 0; i < quiz.questions.length; i++) {
+        const q = quiz.questions[i];
+        const optText = q.options.map((o, idx) => `${idx + 1}. ${o}`).join("\n");
+        const answer = prompt(`Question ${i + 1}/${quiz.questions.length}:\n${q.question}\n\n${optText}\n\nEnter option number (1-${q.options.length}):`, "1");
+        if (answer === null) return;
+        answers[i] = parseInt(answer) - 1;
+      }
+
+      try {
+        const result = await StudyMateApi.submitQuiz(id, answers);
+        alert(`Quiz Finished!\nScore: ${result.score}/${result.total} (${result.percentage}%)\n\nReview:\n` +
+          result.details.map(d => `Q${d.questionIndex + 1}: ${d.isCorrect ? '✓ Correct' : '✕ Incorrect'} - ${d.explanation}`).join("\n\n"));
+      } catch (e) {
+        alert("Failed to submit quiz: " + e.message);
+      }
+    }
+
+    async function generateAiQuiz() {
+      const topic = prompt("Enter topic for AI quiz (e.g. Operating Systems Concurrency or Python Generators):", "Python Data Structures");
+      if (!topic) return;
+      alert("Gemma AI is preparing your custom quiz...");
+      try {
+        const res = await StudyMateApi.generateQuiz(topic);
+        alert("Generated Quiz:\n\n" + res.response);
+      } catch (e) {
+        alert("AI Quiz generation failed: " + e.message);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => loadQuizzes());
+  </script>
+</body>
+</html>

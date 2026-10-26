@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Community — StudyMate AI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/index.html" class="brand"><span>🎓</span> StudyMate AI</a>
+    <nav class="nav-links">
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/assistant.html">AI Assistant</a>
+      <a href="/community.html" class="active">Community</a>
+      <a href="/skillswap.html">SkillSwap</a>
+      <a href="/quizzes.html">Quizzes</a>
+      <a href="/planner.html">Planner</a>
+      <a href="/trustcheck.html">TrustCheck</a>
+    </nav>
+    <span id="nav-user-name" style="font-size: 13px; font-weight: 600;">Alex Morgan</span>
+  </header>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h2>💬 Student Community Forum</h2>
+        <p style="color: var(--text-muted); font-size: 13px;">Discuss study topics, ask questions, and share verified notes.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openNewPostModal()">+ Start Discussion</button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto;">
+      <button class="btn btn-secondary active" onclick="filterCategory('All', this)">All Subjects</button>
+      <button class="btn btn-secondary" onclick="filterCategory('Computer Science', this)">Computer Science</button>
+      <button class="btn btn-secondary" onclick="filterCategory('Mathematics', this)">Mathematics</button>
+      <button class="btn btn-secondary" onclick="filterCategory('Academic Policy', this)">Academic Policy</button>
+    </div>
+
+    <div id="posts-container" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--text-muted);">Loading discussions...</p>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let currentCategory = "All";
+
+    async function loadPosts() {
+      const container = document.getElementById("posts-container");
+      try {
+        const res = await StudyMateApi.getPosts(currentCategory);
+        if (res.posts) {
+          container.innerHTML = res.posts.map(p => `
+            <div class="card" style="margin: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>${p.authorName}</strong>
+                  ${p.authorVerified ? '<span class="badge badge-verified">✓ Verified</span>' : ''}
+                  <span style="font-size: 11px; color: var(--text-muted); margin-left: 6px;">${p.timestamp}</span>
+                </div>
+                <span class="badge" style="background: var(--surface-alt); color: var(--primary);">${p.subject}</span>
+              </div>
+              <h3 style="margin: 10px 0 6px; font-size: 16px;">${p.title}</h3>
+              <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5;">${p.content}</p>
+              
+              <div style="display: flex; gap: 16px; align-items: center; margin-top: 14px;">
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="upvote('${p.id}')">
+                  👍 <span>${p.upvotes}</span>
+                </button>
+                <span style="font-size: 12px; color: var(--text-muted);">💬 ${p.commentsCount} comments</span>
+                <button style="margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer;" onclick="report('${p.id}')">
+                  🚩 Report
+                </button>
+              </div>
+            </div>
+          `).join("");
+        }
+      } catch (e) {
+        container.innerHTML = "<p>Error loading community posts.</p>";
+      }
+    }
+
+    async function upvote(id) {
+      await StudyMateApi.upvotePost(id);
+      loadPosts();
+    }
+
+    async function report(id) {
+      await StudyMateApi.request(`/api/community/posts/${id}/report`, { method: "POST" });
+      alert("Post reported to institutional moderation staff.");
+    }
+
+    function filterCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll(".container button").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      loadPosts();
+    }
+
+    async function openNewPostModal() {
+      const title = prompt("Discussion Title:");
+      if (!title) return;
+      const content = prompt("Discussion Details:");
+      if (!content) return;
+      const subject = prompt("Subject Category (Computer Science / Mathematics / General):", "Computer Science");
+      
+      try {
+        await StudyMateApi.createPost(title, content, subject || "General");
+        loadPosts();
+      } catch (e) {
+        alert("Failed to publish post: " + e.message);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => loadPosts());
+  </script>
+</body>
+</html>
